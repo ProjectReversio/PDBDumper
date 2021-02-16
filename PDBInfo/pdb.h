@@ -3,7 +3,17 @@
 #include <Dia2.h>
 #include <vector>
 
-class PDB
+#ifndef PDB_DYNAMICLIB
+#define DLL_EXPORT
+#else
+#ifdef PDB_DLL
+#define DLL_EXPORT __declspec(dllexport)
+#else
+#define DLL_EXPORT __declspec(dllimport)
+#endif
+#endif
+
+class DLL_EXPORT PDB
 {
 protected:
 

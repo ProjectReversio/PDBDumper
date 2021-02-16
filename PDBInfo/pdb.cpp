@@ -50,10 +50,11 @@ bool PDB::LoadPDB(const char* szFilename)
 
     if (!strcmp(wszExt, ".pdb"))
     {
+        size_t numDone;
 
         // Open and prepare a program database (.pdb) file as a debug data source
         wchar_t wszFilename[_MAX_PATH];
-        mbstowcs(wszFilename, szFilename, sizeof(wszFilename) / sizeof(wszFilename[0]));
+        mbstowcs_s(&numDone, wszFilename, szFilename, sizeof(wszFilename) / sizeof(wszFilename[0]));
         hr = mDiaDataSource->loadDataFromPdb(wszFilename);
 
         if (FAILED(hr)) {
