@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PDBDumperSharp": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\Debugging\\Projects\\Marble Blast Ultra\\MBU_Ship.pdb\""
+    }
+  }
+}

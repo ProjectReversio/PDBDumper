@@ -15,8 +15,7 @@
 
 class DLL_EXPORT PDB
 {
-protected:
-
+public:
     struct ObjectFile
     {
         const char* filename;
@@ -24,6 +23,7 @@ protected:
         std::vector<size_t> sourceFileIndices;
     };
 
+protected:
     const char* mFilename;
     IDiaDataSource* mDiaDataSource;
     IDiaSession* mDiaSession;
