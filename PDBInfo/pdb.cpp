@@ -1,116 +1,66 @@
 #include "pdb.h"
 
-#include <iostream>
-#include <assert.h>
+#include "internalpdb.h"
 
-PDB::PDB()
+#include <Dia2.h>
+
+#include <iostream>
+
+PDB::PDB() : mFilename(nullptr), mMachineType(CV_CFL_80386)
 {
-    mFilename = nullptr;
-    mDiaDataSource = nullptr;
-    mDiaSession = nullptr;
-    mGlobalSymbol = nullptr;
-    mMachineType = CV_CFL_80386;
+
 }
 
 PDB::~PDB()
 {
-    // Release DIA objects and CoUninitialize
-    if (mGlobalSymbol)
-    {
-        mGlobalSymbol->Release();
-        mGlobalSymbol = nullptr;
-    }
-
-    if (mDiaSession)
-    {
-        mDiaSession->Release();
-        mDiaSession = nullptr;
-    }
-
-    CoUninitialize();
+    // empty for now
 }
 
-bool PDB::LoadPDB(const char* szFilename)
+PDB* PDB::LoadPDB(const char* filename, char(*errorBuffer)[256])
 {
-    mFilename = szFilename;
+    PDB* pdb = new PDB();
+    pdb->mFilename = filename;
 
-    HRESULT hr = CoInitialize(NULL);
-
-    // Obtain access to the provider
-    hr = CoCreateInstance(__uuidof(DiaSource), NULL, CLSCTX_INPROC_SERVER, __uuidof(IDiaDataSource), (void**)&mDiaDataSource);
-
-    if (FAILED(hr))
+    InternalPDB* ipdb = InternalPDB::LoadPDB(filename, errorBuffer);
+    if (ipdb == nullptr)
     {
-        printf("CoCreateInstance failed - HRESULT = %08X\n", hr);
-        return false;
-    }
-
-    char wszExt[MAX_PATH];
-    _splitpath_s(szFilename, NULL, 0, NULL, 0, NULL, 0, wszExt, MAX_PATH);
-
-    if (!strcmp(wszExt, ".pdb"))
-    {
-        size_t numDone;
-
-        // Open and prepare a program database (.pdb) file as a debug data source
-        wchar_t wszFilename[_MAX_PATH];
-        mbstowcs_s(&numDone, wszFilename, szFilename, sizeof(wszFilename) / sizeof(wszFilename[0]));
-        hr = mDiaDataSource->loadDataFromPdb(wszFilename);
-
-        if (FAILED(hr)) {
-            printf("loadDataFromPdb failed - HRESULT = %08X\n", hr);
-
-            return false;
-        }
-    }
-    else
-    {
-        printf("Unsupported file format: %s\n", wszExt);
-        return false;
-    }
-
-    // Open a session for querying symbols
-    hr = mDiaDataSource->openSession(&mDiaSession);
-
-    if (FAILED(hr)) {
-        printf("openSession failed - HRESULT = %08X\n", hr);
-
-        return false;
-    }
-
-    // Retrieve a reference to the global scope
-    hr = mDiaSession->get_globalScope(&mGlobalSymbol);
-
-    if (hr != S_OK) {
-        printf("get_globalScope failed\n");
-
-        return false;
+        delete pdb;
+        return nullptr;
     }
 
     // Set Machine type for getting correct register names
     DWORD dwMachType = 0;
-    if (mGlobalSymbol->get_machineType(&dwMachType) == S_OK) {
+    if (ipdb->getGlobalSymbol()->get_machineType(&dwMachType) == S_OK) {
         switch (dwMachType) {
             case IMAGE_FILE_MACHINE_I386:
-                mMachineType = CV_CFL_80386;
+                pdb->mMachineType = CV_CFL_80386;
                 break;
             case IMAGE_FILE_MACHINE_IA64:
-                mMachineType = CV_CFL_IA64;
+                pdb->mMachineType = CV_CFL_IA64;
                 break;
             case IMAGE_FILE_MACHINE_AMD64:
-                mMachineType = CV_CFL_AMD64;
+                pdb->mMachineType = CV_CFL_AMD64;
                 break;
         }
     }
 
-    return PopulateData();
+    // Populate all the data for this class.
+    if (!pdb->PopulateData(ipdb))
+    {
+        if (errorBuffer != nullptr)
+            sprintf_s((char*)*errorBuffer, 256, "Failed to populate data.");
+        delete pdb;
+        return nullptr;
+    }
+
+    return pdb;
 }
 
-bool PDB::PopulateData()
+bool PDB::PopulateData(InternalPDB* ipdb)
 {
     // Retrieve the compilands first
     IDiaEnumSymbols* pEnumSymbols;
-    if (FAILED(mGlobalSymbol->findChildren(SymTagCompiland, NULL, nsNone, &pEnumSymbols)))
+    if (FAILED(ipdb->getGlobalSymbol()->findChildren(SymTagCompiland, NULL, nsNone, &pEnumSymbols)))
         return false;
 
     IDiaSymbol* pCompiland;
@@ -208,7 +158,7 @@ bool PDB::PopulateData()
         // Every compiland could contain multiple references to the source files which were used to build it
         // Retrieve all source files by compiland by passing NULL for the name of the source file
         IDiaEnumSourceFiles* pEnumSourceFiles;
-        if (SUCCEEDED(mDiaSession->findFile(pCompiland, NULL, nsNone, &pEnumSourceFiles)))
+        if (SUCCEEDED(ipdb->getSession()->findFile(pCompiland, NULL, nsNone, &pEnumSourceFiles)))
         {
             IDiaSourceFile* pSourceFile;
 

@@ -12,15 +12,20 @@ int main(int argc, const char** argv)
 
     const char* filename = argv[1];
 
-    PDB pdb;
+    char errorBuffer[256];
+    errorBuffer[0] = '\0';
+    PDB* pdb = PDB::LoadPDB(filename, &errorBuffer);
 
-    if (!pdb.LoadPDB(filename))
-        return -1;
+    if (*errorBuffer)
+    {
+        printf_s("Error: %s\n", errorBuffer);
+        return 1;
+    }
 
-    auto symbols = pdb.getSymbols();
-    auto sources = pdb.getSourceFiles();
+    auto symbols = pdb->getSymbols();
+    auto sources = pdb->getSourceFiles();
 
-    auto objects = pdb.getObjects();
+    auto objects = pdb->getObjects();
 
     for (size_t i = 0; i < objects.size(); i++)
     {
@@ -39,17 +44,7 @@ int main(int argc, const char** argv)
         {
             auto index = object->sourceFileIndices[j];
 
-            auto source = sources[index];
-
-            char ext[MAX_PATH];
-            _splitpath_s(source, NULL, 0, NULL, 0, NULL, 0, ext, MAX_PATH);
-
-            /*bool sourceFile = false;
-
-            if (!strcmp(ext, ".cpp") || !strcmp(ext, ".cc") || !strcmp(ext, ".c"))
-                sourceFile = true;*/
-
-            std::cout << "    " << source << std::endl;
+            std::cout << "    " << sources[index] << std::endl;
         }
     }
 

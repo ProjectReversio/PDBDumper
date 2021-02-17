@@ -156,8 +156,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="pdb.cpp" />
+    <ClCompile Include="internalpdb.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="internalpdb.h" />
     <ClInclude Include="pdb.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

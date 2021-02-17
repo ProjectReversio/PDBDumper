@@ -2,10 +2,39 @@
 
 namespace PDBInfo
 {
+    public ref struct PDBException : public System::Exception
+    {
+        public:
+            PDBException() : System::Exception()
+            {
+
+            }
+
+            PDBException(System::String^ message) : System::Exception(message)
+            {
+                
+            }
+
+            PDBException(System::String^ message, System::Exception^ innerException) : System::Exception(message, innerException)
+            {
+
+            }
+
+            PDBException(System::Runtime::Serialization::SerializationInfo^ info, System::Runtime::Serialization::StreamingContext context) : System::Exception(info, context)
+            {
+
+            }
+    };
+
     public ref class PDB
     {
     private:
         ::PDB* mPDB;
+
+        PDB(::PDB* pdb)
+        {
+            mPDB = pdb;
+        }
     public:
         ref class ObjectFile
         {
@@ -20,25 +49,25 @@ namespace PDBInfo
                 }
             }
 
-            property System::Collections::Generic::List<size_t>^ SymbolIndices
+            property System::Collections::Generic::List<System::Int32>^ SymbolIndices
             {
-                System::Collections::Generic::List<size_t>^ get()
+                System::Collections::Generic::List<System::Int32>^ get()
                 {
-                    auto ret = gcnew System::Collections::Generic::List<size_t>(mObjectfile->symbolIndices.size());
+                    auto ret = gcnew System::Collections::Generic::List<System::Int32>((System::Int32)mObjectfile->symbolIndices.size());
                     for (auto index : mObjectfile->symbolIndices)
-                        ret->Add(index);
+                        ret->Add((System::Int32)index);
 
                     return ret;
                 }
             }
 
-            property System::Collections::Generic::List<size_t>^ SourceFileIndices
+            property System::Collections::Generic::List<System::Int32>^ SourceFileIndices
             {
-                System::Collections::Generic::List<size_t>^ get()
+                System::Collections::Generic::List<System::Int32>^ get()
                 {
-                    auto ret = gcnew System::Collections::Generic::List<size_t>(mObjectfile->sourceFileIndices.size());
+                    auto ret = gcnew System::Collections::Generic::List<System::Int32>((System::Int32)mObjectfile->sourceFileIndices.size());
                     for (auto index : mObjectfile->sourceFileIndices)
-                        ret->Add(index);
+                        ret->Add((System::Int32)index);
 
                     return ret;
                 }
@@ -49,11 +78,6 @@ namespace PDBInfo
                 mObjectfile = objectfile;
             }
         };
-
-        PDB()
-        {
-            mPDB = new ::PDB();
-        }
 
         ~PDB()
         {
@@ -68,32 +92,43 @@ namespace PDBInfo
             }
         }
 
-        System::Boolean LoadPDB(System::String^ filename)
+        static PDB^ LoadPDB(System::String^ filename)
         {
             auto buffer = System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(filename);
-            bool ret = mPDB->LoadPDB((char*)buffer.ToPointer());
+
+            char errorBuffer[256];
+            errorBuffer[0] = '\0';
+            ::PDB* pdb = ::PDB::LoadPDB((char*)buffer.ToPointer(), &errorBuffer);
             System::Runtime::InteropServices::Marshal::FreeHGlobal(buffer);
 
-            return ret;
+            if (pdb == nullptr)
+            {
+                if (*errorBuffer)
+                    throw gcnew PDBException(gcnew System::String(errorBuffer));
+                else
+                    throw gcnew PDBException(gcnew System::String("Unknown Error"));
+            }
+
+            return gcnew PDB(pdb);
         }
 
         property System::Collections::Generic::List<ObjectFile^>^ Objects
         {
             System::Collections::Generic::List<ObjectFile^>^ get()
             {
-                auto ret = gcnew System::Collections::Generic::List<ObjectFile^>(mPDB->getObjects().size());
+                auto ret = gcnew System::Collections::Generic::List<ObjectFile^>((System::Int32)mPDB->getObjects().size());
                 for (auto obj : mPDB->getObjects())
                     ret->Add(gcnew ObjectFile(obj));
 
                 return ret;
             }
         }
-        
+
         property System::Collections::Generic::List<System::String^>^ Symbols
         {
             System::Collections::Generic::List<System::String^>^ get()
             {
-                auto ret = gcnew System::Collections::Generic::List<System::String^>(mPDB->getSymbols().size());
+                auto ret = gcnew System::Collections::Generic::List<System::String^>((System::Int32)mPDB->getSymbols().size());
                 for (auto symbol : mPDB->getSymbols())
                     ret->Add(gcnew System::String(symbol));
 
@@ -105,7 +140,7 @@ namespace PDBInfo
         {
             System::Collections::Generic::List<System::String^>^ get()
             {
-                auto ret = gcnew System::Collections::Generic::List<System::String^>(mPDB->getSourceFiles().size());
+                auto ret = gcnew System::Collections::Generic::List<System::String^>((System::Int32)mPDB->getSourceFiles().size());
                 for (auto srcfile : mPDB->getSourceFiles())
                     ret->Add(gcnew System::String(srcfile));
 

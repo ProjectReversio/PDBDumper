@@ -18,9 +18,16 @@ namespace PDBDumperSharp
 
 			Console.WriteLine($"Loading PDB '{filename}'...");
 
-			using PDB pdb = new PDB();
-			if (!pdb.LoadPDB(filename))
+			PDB pdb = null;
+
+			try
+			{
+				pdb = PDB.LoadPDB(filename);
+			} catch (PDBException ex)
+			{
+				Console.WriteLine("Error: " + ex.Message);
 				return;
+			}
 
 			Console.WriteLine("PDB Loaded... Processing Information");
 

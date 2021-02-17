@@ -18,9 +18,15 @@
     <ClCompile Include="pdb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="internalpdb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pdb.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="internalpdb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,17 +1,18 @@
 #pragma once
 
-#include <Dia2.h>
 #include <vector>
 
-#ifndef PDB_DYNAMICLIB
-#define DLL_EXPORT
-#else
+#ifdef PDB_SHAREDLIB
 #ifdef PDB_DLL
 #define DLL_EXPORT __declspec(dllexport)
 #else
 #define DLL_EXPORT __declspec(dllimport)
 #endif
+#else
+#define DLL_EXPORT
 #endif
+
+class InternalPDB;
 
 class DLL_EXPORT PDB
 {
@@ -25,27 +26,24 @@ public:
 
 protected:
     const char* mFilename;
-    IDiaDataSource* mDiaDataSource;
-    IDiaSession* mDiaSession;
-    IDiaSymbol* mGlobalSymbol;
-    DWORD mMachineType;
+    unsigned long mMachineType;
 
     std::vector<ObjectFile*> mObjects;
     std::vector<const char*> mSymbols;
     std::vector<const char*> mSourceFiles;
 
 public:
-    PDB();
     ~PDB();
 
-    const char* getFilename() { return mFilename; }
+    static PDB* LoadPDB(const char* filename, char(* errorBuffer)[256] = nullptr);
 
-    bool LoadPDB(const char* szFilename);
+    const char* getFilename() { return mFilename; }
 
     std::vector<ObjectFile*> getObjects() { return mObjects; }
     std::vector<const char*> getSymbols() { return mSymbols; }
     std::vector<const char*> getSourceFiles() { return mSourceFiles; }
 
 private:
-    bool PopulateData();
+    PDB();
+    bool PopulateData(InternalPDB* ipdb);
 };
