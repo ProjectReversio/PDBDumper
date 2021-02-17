@@ -142,7 +142,10 @@ bool PDB::PopulateData()
                 continue;
 
             if (strcmp(mObjects[i]->filename, objectfileName) == 0)
+            {
                 objectfile = mObjects[i];
+                break;
+            }
         }
 
         if (objectfile == nullptr)
@@ -206,7 +209,10 @@ bool PDB::PopulateData()
                             continue;
 
                         if (strcmp(mSourceFiles[i], filename) == 0)
+                        {
                             index = i;
+                            break;
+                        }
                     }
 
                     // If not, add it
