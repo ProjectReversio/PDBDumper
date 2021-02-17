@@ -5,4 +5,4 @@ A tool to view information about PDB files.
 * [HumanGamer](https://github.com/HumanGamer/)
 
 # License
-This project is under the ![license](https://img.shields.io/github/license/HumanGamer/PDBDumper)
+This project is under the [![license](https://img.shields.io/github/license/HumanGamer/PDBDumper)](LICENSE)
