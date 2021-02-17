@@ -173,7 +173,29 @@ bool PDB::PopulateData()
                     wcstombs_s(&numDone, symbolname, 4096, bstrSymbolName, 4096);
                     SysFreeString(bstrSymbolName);
 
-                    objectfile->symbols.push_back(symbolname);
+                    size_t index = -1;
+
+                    // Check if it already exists
+                    for (size_t i = 0; i < mSymbols.size(); i++)
+                    {
+                        if (mSymbols[i] == nullptr)
+                            continue;
+
+                        if (strcmp(mSymbols[i], symbolname) == 0)
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+
+                    // If not, add it
+                    if (index == -1)
+                    {
+                        index = mSymbols.size();
+                        mSymbols.push_back(symbolname);
+                    }
+
+                    objectfile->symbolIndices.push_back(index);
                 }
 
                 pSymbol->Release();

@@ -20,13 +20,13 @@ namespace PDBInfo
                 }
             }
 
-            property System::Collections::Generic::List<System::String^>^ Symbols
+            property System::Collections::Generic::List<size_t>^ SymbolIndices
             {
-                System::Collections::Generic::List<System::String^>^ get()
+                System::Collections::Generic::List<size_t>^ get()
                 {
-                    auto ret = gcnew System::Collections::Generic::List<System::String^>(mObjectfile->symbols.size());
-                    for (auto symbol : mObjectfile->symbols)
-                        ret->Add(gcnew System::String(symbol));
+                    auto ret = gcnew System::Collections::Generic::List<size_t>(mObjectfile->symbolIndices.size());
+                    for (auto index : mObjectfile->symbolIndices)
+                        ret->Add(index);
 
                     return ret;
                 }
@@ -84,6 +84,18 @@ namespace PDBInfo
                 auto ret = gcnew System::Collections::Generic::List<ObjectFile^>(mPDB->getObjects().size());
                 for (auto obj : mPDB->getObjects())
                     ret->Add(gcnew ObjectFile(obj));
+
+                return ret;
+            }
+        }
+        
+        property System::Collections::Generic::List<System::String^>^ Symbols
+        {
+            System::Collections::Generic::List<System::String^>^ get()
+            {
+                auto ret = gcnew System::Collections::Generic::List<System::String^>(mPDB->getSymbols().size());
+                for (auto symbol : mPDB->getSymbols())
+                    ret->Add(gcnew System::String(symbol));
 
                 return ret;
             }

@@ -17,6 +17,7 @@ int main(int argc, const char** argv)
     if (!pdb.LoadPDB(filename))
         return -1;
 
+    auto symbols = pdb.getSymbols();
     auto sources = pdb.getSourceFiles();
 
     auto objects = pdb.getObjects();
@@ -27,11 +28,11 @@ int main(int argc, const char** argv)
 
         std::cout << object->filename << std::endl;
 
-        for (size_t j = 0; j < object->symbols.size(); j++)
+        for (size_t j = 0; j < object->symbolIndices.size(); j++)
         {
-            auto symbol = object->symbols[j];
+            auto index = object->symbolIndices[j];
 
-            std::cout << "  " << symbol << std::endl;
+            std::cout << "  " << symbols[index] << std::endl;
         }
 
         for (size_t j = 0; j < object->sourceFileIndices.size(); j++)

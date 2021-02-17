@@ -19,7 +19,7 @@ public:
     struct ObjectFile
     {
         const char* filename;
-        std::vector<const char*> symbols;
+        std::vector<size_t> symbolIndices;
         std::vector<size_t> sourceFileIndices;
     };
 
@@ -31,6 +31,7 @@ protected:
     DWORD mMachineType;
 
     std::vector<ObjectFile*> mObjects;
+    std::vector<const char*> mSymbols;
     std::vector<const char*> mSourceFiles;
 
 public:
@@ -42,6 +43,7 @@ public:
     bool LoadPDB(const char* szFilename);
 
     std::vector<ObjectFile*> getObjects() { return mObjects; }
+    std::vector<const char*> getSymbols() { return mSymbols; }
     std::vector<const char*> getSourceFiles() { return mSourceFiles; }
 
 private:

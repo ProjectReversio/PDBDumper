@@ -14,10 +14,17 @@ namespace PDBDumperSharp
 				return;
 			}
 
+			string filename = args[0];
+
+			Console.WriteLine($"Loading PDB '{filename}'...");
+
 			using PDB pdb = new PDB();
-			if (!pdb.LoadPDB(args[0]))
+			if (!pdb.LoadPDB(filename))
 				return;
 
+			Console.WriteLine("PDB Loaded... Processing Information");
+
+			var symbols = pdb.Symbols;
 			var sources = pdb.SourceFiles;
 			var objects = pdb.Objects;
 
@@ -25,8 +32,8 @@ namespace PDBDumperSharp
 			{
 				Console.WriteLine(obj.FileName);
 
-				foreach (var symbol in obj.Symbols)
-					Console.WriteLine("  " + symbol);
+				foreach (var index in obj.SymbolIndices)
+					Console.WriteLine("  " + symbols[(int)index]);
 
 				foreach (var index in obj.SourceFileIndices)
 				{
