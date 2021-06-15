@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PDBDumperSharp", "PDBDumper
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PDBExplorer", "PDBExplorer\PDBExplorer.csproj", "{DD2EAB56-C1CC-4347-88C1-B9295FA168B0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarbleBlastPDBDumper", "MarbleBlastPDBDumper\MarbleBlastPDBDumper.csproj", "{B4C268A4-1433-4FCD-AD85-D335F59791FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -61,6 +63,12 @@ Global
 		{DD2EAB56-C1CC-4347-88C1-B9295FA168B0}.Release|Win32.Build.0 = Release|x86
 		{DD2EAB56-C1CC-4347-88C1-B9295FA168B0}.Release|x64.ActiveCfg = Release|x64
 		{DD2EAB56-C1CC-4347-88C1-B9295FA168B0}.Release|x64.Build.0 = Release|x64
+		{B4C268A4-1433-4FCD-AD85-D335F59791FD}.Debug|Win32.ActiveCfg = Debug|x64
+		{B4C268A4-1433-4FCD-AD85-D335F59791FD}.Debug|x64.ActiveCfg = Debug|x64
+		{B4C268A4-1433-4FCD-AD85-D335F59791FD}.Debug|x64.Build.0 = Debug|x64
+		{B4C268A4-1433-4FCD-AD85-D335F59791FD}.Release|Win32.ActiveCfg = Release|x64
+		{B4C268A4-1433-4FCD-AD85-D335F59791FD}.Release|x64.ActiveCfg = Release|x64
+		{B4C268A4-1433-4FCD-AD85-D335F59791FD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
