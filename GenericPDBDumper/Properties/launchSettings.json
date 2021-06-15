@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GenericPDBDumper": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\Debugging\\Projects\\Bejeweled\\Bejeweled Blitz\\BejBlitz.pdb\""
+    }
+  }
+}

@@ -132,7 +132,7 @@ namespace GenericPDBDumper
 
 		private static bool HasNextArg()
 		{
-			return _argIndex < _programArguments.Length;
+			return _argIndex + 1 < _programArguments.Length;
 		}
 
 		private static string NextArg()
@@ -159,6 +159,7 @@ namespace GenericPDBDumper
 			}
 
 			_inputFile = args[0];
+			_outputFile ??= Path.ChangeExtension(_inputFile, "json");
 
 			foreach (var option in options)
 			{
@@ -225,12 +226,10 @@ namespace GenericPDBDumper
 		private class SourceData
 		{
 			public List<string> Methods { get; }
-			public List<string> ConsoleMethods { get; }
 
 			public SourceData()
 			{
 				Methods = new List<string>();
-				ConsoleMethods = new List<string>();
 			}
 		}
 
@@ -258,8 +257,7 @@ namespace GenericPDBDumper
 
 				if (_fileWhitelist != null && !file.ContainsAnyNoCase(_fileWhitelist))
 					continue;
-
-				List<string> consoleMethods = new List<string>();
+				
 				List<string> methods = new List<string>();
 
 				foreach (var i in obj.SymbolIndices)
@@ -267,12 +265,7 @@ namespace GenericPDBDumper
 					string symbol = pdb.Symbols[i];
 
 					if (ShouldAddSymbol(symbol))
-					{
-						if (isConsoleMethod(symbol))
-							consoleMethods.Add(cleanupConsoleMethod(symbol));
-						else
-							methods.Add(cleanupMethod(symbol));
-					}
+						methods.Add(cleanupMethod(symbol));
 				}
 
 				string sourceFile = null;
@@ -284,9 +277,12 @@ namespace GenericPDBDumper
 					if (!ext.MatchesAnyNoCase(_sourceExtensions))
 						continue;
 
-					sourceFile = curFile.Replace(_stripBaseDir, "").Replace('\\', '/');
+					if (!string.IsNullOrWhiteSpace(_stripBaseDir))
+						sourceFile = curFile.Replace(_stripBaseDir, "").Replace('\\', '/');
+					else
+						sourceFile = curFile.Replace('\\', '/');
 
-					if (!sourceMap.ContainsKey(sourceFile) && (consoleMethods.Count > 0 || methods.Count > 0))
+					if (!sourceMap.ContainsKey(sourceFile) && methods.Count > 0)
 						sourceMap.Add(sourceFile, new SourceData());
 
 					break;
@@ -303,9 +299,12 @@ namespace GenericPDBDumper
 						if (ext != ".res")
 							continue;
 
-						sourceFile = curFile.Replace(_stripBaseDir, "").Replace('\\', '/');
+						if (!string.IsNullOrWhiteSpace(_stripBaseDir))
+							sourceFile = curFile.Replace(_stripBaseDir, "").Replace('\\', '/');
+						else
+							sourceFile = curFile.Replace('\\', '/');
 
-						if (!sourceMap.ContainsKey(sourceFile) && (consoleMethods.Count > 0 || methods.Count > 0))
+						if (!sourceMap.ContainsKey(sourceFile) && methods.Count > 0)
 							sourceMap.Add(sourceFile, new SourceData());
 
 						break;
@@ -323,9 +322,6 @@ namespace GenericPDBDumper
 						sourceMap.Add(sourceFile, new SourceData());
 				}
 
-				foreach (var consoleMethod in consoleMethods)
-					sourceMap[sourceFile].ConsoleMethods.Add(consoleMethod);
-
 				foreach (var method in methods)
 					sourceMap[sourceFile].Methods.Add(method);
 			}
@@ -339,37 +335,6 @@ namespace GenericPDBDumper
 			bool notOnBlackList = _blackList == null || !symbol.ContainsAnyNoCase(_blackList);
 
 			return onWhiteList && notOnBlackList;
-		}
-
-		private static bool isConsoleMethod(string symbol)
-		{
-			// we need a way to auto detect this
-			return symbol.ToLower().Contains("cmarble");
-		}
-
-		private static string cleanupConsoleMethod(string symbol)
-		{
-			symbol = cleanupMethod(symbol);
-
-			if (symbol.StartsWith("static "))
-				symbol = symbol.Substring(7);
-
-			int index = symbol.IndexOf(" cMarble");
-			symbol = symbol.Replace("cMarble", "");
-
-			int index2 = symbol.IndexOf("(");
-			if (index2 > -1)
-				symbol = symbol.Substring(0, index2);
-
-			if (index > -1)
-			{
-				string type = symbol.Substring(0, index);
-				symbol = symbol.Substring(index);
-
-				symbol = "ConsoleMethod(Marble," + symbol + ", " + type + ")";
-			}
-
-			return symbol;
 		}
 
 		private static string cleanupMethod(string symbol)
