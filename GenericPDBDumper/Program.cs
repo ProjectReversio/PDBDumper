@@ -316,7 +316,7 @@ namespace GenericPDBDumper
 					if (obj.FileName == null)
 						sourceFile = "<unknown>";
 					else
-						sourceFile = "<obj:" + obj.FileName + ">";
+						sourceFile = "<unknown obj:" + obj.FileName + ">";
 					if (!sourceMap.ContainsKey(sourceFile))
 						sourceMap.Add(sourceFile, new List<string>());
 				}
