@@ -108,7 +108,8 @@ bool PDB::PopulateData(InternalPDB* ipdb)
 
         // Find all the symbols defined in this compiland
         IDiaEnumSymbols* pEnumChildren;
-        if (SUCCEEDED(pCompiland->findChildren(SymTagNull, NULL, nsNone, &pEnumChildren)))
+        const enum SymTagEnum symbolType = SymTagFunction; // use SymTagNull to get every symbol type
+        if (SUCCEEDED(pCompiland->findChildren(symbolType, NULL, nsNone, &pEnumChildren)))
         {
             IDiaSymbol* pSymbol;
             ULONG celtChildren = 0;
