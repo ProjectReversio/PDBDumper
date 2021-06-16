@@ -215,7 +215,7 @@ namespace GenericPDBDumper
 				return;
 
 			Console.WriteLine("Loading PDB `" + _inputFile + "`...");
-			Dictionary<string, List<string>> symbolMap = GetMarbleSymbols(_inputFile);
+			Dictionary<string, List<string>> symbolMap = GetSymbols(_inputFile);
 
 			Console.WriteLine("Writing to file");
 			File.WriteAllText(_outputFile, JsonConvert.SerializeObject(symbolMap, Formatting.Indented));
@@ -223,7 +223,7 @@ namespace GenericPDBDumper
 			Console.WriteLine("Done!");
 		}
 
-		private static Dictionary<string, List<string>> GetMarbleSymbols(string filename)
+		private static Dictionary<string, List<string>> GetSymbols(string filename)
 		{
 			PDB pdb;
 
