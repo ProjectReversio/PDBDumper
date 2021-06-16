@@ -215,7 +215,7 @@ namespace GenericPDBDumper
 				return;
 
 			Console.WriteLine("Loading PDB `" + _inputFile + "`...");
-			Dictionary<string, SourceData> symbolMap = GetMarbleSymbols(_inputFile);
+			Dictionary<string, List<string>> symbolMap = GetMarbleSymbols(_inputFile);
 
 			Console.WriteLine("Writing to file");
 			File.WriteAllText(_outputFile, JsonConvert.SerializeObject(symbolMap, Formatting.Indented));
@@ -223,17 +223,7 @@ namespace GenericPDBDumper
 			Console.WriteLine("Done!");
 		}
 
-		private class SourceData
-		{
-			public List<string> Methods { get; }
-
-			public SourceData()
-			{
-				Methods = new List<string>();
-			}
-		}
-
-		private static Dictionary<string, SourceData> GetMarbleSymbols(string filename)
+		private static Dictionary<string, List<string>> GetMarbleSymbols(string filename)
 		{
 			PDB pdb;
 
@@ -249,7 +239,7 @@ namespace GenericPDBDumper
 
 			Console.WriteLine("Parsing Symbols...");
 
-			Dictionary<string, SourceData> sourceMap = new Dictionary<string, SourceData>();
+			Dictionary<string, List<string>> sourceMap = new Dictionary<string, List<string>>();
 
 			foreach (var obj in pdb.Objects)
 			{
@@ -283,7 +273,7 @@ namespace GenericPDBDumper
 						sourceFile = curFile.Replace('\\', '/');
 
 					if (!sourceMap.ContainsKey(sourceFile) && methods.Count > 0)
-						sourceMap.Add(sourceFile, new SourceData());
+						sourceMap.Add(sourceFile, new List<string>());
 
 					break;
 				}
@@ -305,7 +295,7 @@ namespace GenericPDBDumper
 							sourceFile = curFile.Replace('\\', '/');
 
 						if (!sourceMap.ContainsKey(sourceFile) && methods.Count > 0)
-							sourceMap.Add(sourceFile, new SourceData());
+							sourceMap.Add(sourceFile, new List<string>());
 
 						break;
 					}
@@ -324,15 +314,15 @@ namespace GenericPDBDumper
 
 					// Don't fail the whole thing if this happens
 					if (obj.FileName == null)
-						sourceFile = "<error>";
+						sourceFile = "<unknown>";
 					else
 						sourceFile = "<obj:" + obj.FileName + ">";
 					if (!sourceMap.ContainsKey(sourceFile))
-						sourceMap.Add(sourceFile, new SourceData());
+						sourceMap.Add(sourceFile, new List<string>());
 				}
 
 				foreach (var method in methods)
-					sourceMap[sourceFile].Methods.Add(method);
+					sourceMap[sourceFile].Add(method);
 			}
 
 			return sourceMap;
