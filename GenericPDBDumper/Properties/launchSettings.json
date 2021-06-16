@@ -2,7 +2,7 @@
   "profiles": {
     "GenericPDBDumper": {
       "commandName": "Project",
-      "commandLineArgs": "\"D:\\Debugging\\Projects\\Bejeweled\\Bejeweled Blitz 1.0.9\\BejBlitz.pdb\"",
+      "commandLineArgs": "\"D:\\Debugging\\Projects\\Bejeweled\\Bejeweled Blitz 1.0.9\\BejBlitz.pdb\" -W \"D:\\Debugging\\Projects\\Bejeweled\\Bejeweled Blitz 1.0.9\\file-whitelist.txt\"",
       "nativeDebugging": true
     }
   }

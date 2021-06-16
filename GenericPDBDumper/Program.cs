@@ -245,8 +245,8 @@ namespace GenericPDBDumper
 			{
 				string file = Path.GetFileName(obj.FileName);
 
-				if (_fileWhitelist != null && !file.ContainsAnyNoCase(_fileWhitelist))
-					continue;
+				//if (_fileWhitelist != null && !file.ContainsAnyNoCase(_fileWhitelist))
+				//	continue;
 				
 				List<string> methods = new List<string>();
 
@@ -272,6 +272,9 @@ namespace GenericPDBDumper
 					else
 						sourceFile = curFile.Replace('\\', '/');
 
+					if (_fileWhitelist != null && !sourceFile.ContainsAnyNoCase(_fileWhitelist))
+						continue;
+
 					if (!sourceMap.ContainsKey(sourceFile) && methods.Count > 0)
 						sourceMap.Add(sourceFile, new List<string>());
 
@@ -293,6 +296,9 @@ namespace GenericPDBDumper
 							sourceFile = curFile.Replace(_stripBaseDir, "").Replace('\\', '/');
 						else
 							sourceFile = curFile.Replace('\\', '/');
+
+						if (_fileWhitelist != null && !sourceFile.ContainsAnyNoCase(_fileWhitelist))
+							continue;
 
 						if (!sourceMap.ContainsKey(sourceFile) && methods.Count > 0)
 							sourceMap.Add(sourceFile, new List<string>());
