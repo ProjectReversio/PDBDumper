@@ -311,13 +311,22 @@ namespace GenericPDBDumper
 					}
 				}
 
+				if (sourceFile == null && methods.Count == 0)
+				{
+					Console.WriteLine($"Object with no methods? Object: {obj.FileName}");
+					continue;
+				}
+
 				if (sourceFile == null)
 				{
 					Console.WriteLine(
 						$"Object with no source file? Perhaps it uses a non standard extension. Object: {obj.FileName}");
 
 					// Don't fail the whole thing if this happens
-					sourceFile = "<error>";
+					if (obj.FileName == null)
+						sourceFile = "<error>";
+					else
+						sourceFile = "<obj:" + obj.FileName + ">";
 					if (!sourceMap.ContainsKey(sourceFile))
 						sourceMap.Add(sourceFile, new SourceData());
 				}
