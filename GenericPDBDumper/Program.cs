@@ -152,7 +152,7 @@ namespace GenericPDBDumper
 			AddArgument("bl", "blacklist", "b", false, "Path to blacklisted strings file (for symbols)");
 			AddArgument("ext", "extensions", "e", false, "Append an extension to the list of valid source file extensions", true, ".cpp;.cc;.c");
 			AddArgument("fwl", "file-whitelist", "W", false, "Path to whitelisted strings file (for file names)");
-			AddArgument("ig", "ignore-no-source", "i", false, "Ignore symbols that aren't associated with a source file");
+			AddArgument("ig", "ignore-no-source", "i", false, "Ignore symbols that aren't associated with a source file", false);
 			var options = ProcessArgs(args, 1);
 			if (options == null || args.Length < 1)
 			{
