@@ -15,6 +15,7 @@ namespace GenericPDBDumper
 		private static string[] _sourceExtensions;
 
 		private static string _stripBaseDir = "";
+		private static bool _ignoreNoSourceFile = false;
 
 		private static string _inputFile;
 		private static string _outputFile;
@@ -151,6 +152,7 @@ namespace GenericPDBDumper
 			AddArgument("bl", "blacklist", "b", false, "Path to blacklisted strings file (for symbols)");
 			AddArgument("ext", "extensions", "e", false, "Append an extension to the list of valid source file extensions", true, ".cpp;.cc;.c");
 			AddArgument("fwl", "file-whitelist", "W", false, "Path to whitelisted strings file (for file names)");
+			AddArgument("ig", "ignore-no-source", "i", false, "Ignore symbols that aren't associated with a source file");
 			var options = ProcessArgs(args, 1);
 			if (options == null || args.Length < 1)
 			{
@@ -191,6 +193,9 @@ namespace GenericPDBDumper
 						_fileWhitelist = LoadList(option.Value);
 						if (_fileWhitelist == null)
 							return false;
+						break;
+					case "ig":
+						_ignoreNoSourceFile = true;
 						break;
 				}
 			}
@@ -275,7 +280,14 @@ namespace GenericPDBDumper
 						sourceFile = curFile.Replace('\\', '/');
 
 					if (_fileWhitelist != null && !sourceFile.ContainsAnyNoCase(_fileWhitelist))
+					{
 						ignoreSymbol = true;
+						continue;
+					}
+					else
+					{
+						ignoreSymbol = false;
+					}
 
 					if (!sourceMap.ContainsKey(sourceFile) && methods.Count > 0)
 						sourceMap.Add(sourceFile, new List<string>());
@@ -300,7 +312,14 @@ namespace GenericPDBDumper
 							sourceFile = curFile.Replace('\\', '/');
 
 						if (_fileWhitelist != null && !sourceFile.ContainsAnyNoCase(_fileWhitelist))
+						{
 							ignoreSymbol = true;
+							continue;
+						}
+						else
+						{
+							ignoreSymbol = false;
+						}
 
 						if (!sourceMap.ContainsKey(sourceFile) && methods.Count > 0)
 							sourceMap.Add(sourceFile, new List<string>());
@@ -322,6 +341,9 @@ namespace GenericPDBDumper
 				{
 					Console.WriteLine(
 						$"Object with no source file? Perhaps it uses a non standard extension. Object: {obj.FileName}");
+
+					if (_ignoreNoSourceFile)
+						continue;
 
 					// Don't fail the whole thing if this happens
 					if (obj.FileName == null)
