@@ -116,12 +116,21 @@ bool PDB::PopulateData(InternalPDB* ipdb)
             while (SUCCEEDED(pEnumChildren->Next(1, &pSymbol, &celtChildren)) && (celtChildren == 1))
             {
                 BSTR bstrSymbolName;
-                if (pSymbol->get_undecoratedName(&bstrSymbolName) == S_OK)
+                if (pSymbol->get_undecoratedName(&bstrSymbolName) == S_OK
+#ifdef INCLUDE_DECORATED
+                || pSymbol->get_name(&bstrSymbolName) == S_OK
+#endif
+                )
                 {
                     char* symbolname = new char[4096];
                     size_t numDone;
                     wcstombs_s(&numDone, symbolname, 4096, bstrSymbolName, 4096);
                     SysFreeString(bstrSymbolName);
+
+#ifdef INCLUDE_DECORATED
+                    if (strcmp(symbolname, "obj") == 0) // For some reason this symbol always exists on all objects
+                        continue;
+#endif
 
                     size_t index = -1;
 
