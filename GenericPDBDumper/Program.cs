@@ -258,6 +258,8 @@ namespace GenericPDBDumper
 						methods.Add(cleanupMethod(symbol));
 				}
 
+				bool ignoreSymbol = false;
+
 				string sourceFile = null;
 				foreach (var i in obj.SourceFileIndices)
 				{
@@ -273,7 +275,7 @@ namespace GenericPDBDumper
 						sourceFile = curFile.Replace('\\', '/');
 
 					if (_fileWhitelist != null && !sourceFile.ContainsAnyNoCase(_fileWhitelist))
-						continue;
+						ignoreSymbol = true;
 
 					if (!sourceMap.ContainsKey(sourceFile) && methods.Count > 0)
 						sourceMap.Add(sourceFile, new List<string>());
@@ -298,7 +300,7 @@ namespace GenericPDBDumper
 							sourceFile = curFile.Replace('\\', '/');
 
 						if (_fileWhitelist != null && !sourceFile.ContainsAnyNoCase(_fileWhitelist))
-							continue;
+							ignoreSymbol = true;
 
 						if (!sourceMap.ContainsKey(sourceFile) && methods.Count > 0)
 							sourceMap.Add(sourceFile, new List<string>());
@@ -306,6 +308,9 @@ namespace GenericPDBDumper
 						break;
 					}
 				}
+
+				if (ignoreSymbol)
+					continue;
 
 				if (sourceFile == null && methods.Count == 0)
 				{
